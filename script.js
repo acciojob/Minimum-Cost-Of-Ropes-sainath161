@@ -1,119 +1,32 @@
 function calculateMinCost() {
-    // Get the input from the user
-    const ropeLengthsInput = document.getElementById("rope-lengths").value;
+    // Fetching the input value and converting it into an array of integers
+    var inputText = document.getElementById("rope-lengths").value;
+    var ropeLengths = inputText.split(',').map(Number);
 
-    // Split the input string into an array of integers
-    const ropeLengths = ropeLengthsInput.split(',').map(Number);
-
-    // Check if there are enough ropes to calculate the cost
-    if (ropeLengths.length < 2) {
-        document.getElementById("result").innerHTML = "Minimum two rope lengths are required.";
-        return;
-    }
-
-    // Create a min heap
-    const minHeap = new MinHeap();
-
-    // Insert all rope lengths into the min heap
-    ropeLengths.forEach(length => {
-        minHeap.insert(length);
+    // Sorting the array of rope lengths in ascending order
+    ropeLengths.sort(function(a, b) {
+        return a - b;
     });
 
-    // Initialize the minimum cost
-    let minCost = 0;
+    var totalCost = 0;
 
-    // Combine ropes until there is only one rope left
-    while (minHeap.size() > 1) {
-        // Get the two smallest ropes
-        const rope1 = minHeap.extractMin();
-        const rope2 = minHeap.extractMin();
+    // Iterating through the sorted array and calculating the total cost
+    while (ropeLengths.length > 1) {
+        var min1 = ropeLengths.shift();
+        var min2 = ropeLengths.shift();
 
-        // Calculate the cost of combining them
-        const cost = rope1 + rope2;
+        var currentCost = min1 + min2;
 
-        // Add the cost to the total cost
-        minCost += cost;
+        // Adding the current cost to the total cost and inserting the new rope length back into the array
+        totalCost += currentCost;
+        ropeLengths.push(currentCost);
 
-        // Insert the combined rope back into the heap
-        minHeap.insert(cost);
+        // Re-sorting the array after adding the new rope length
+        ropeLengths.sort(function(a, b) {
+            return a - b;
+        });
     }
 
-    // Display the minimum cost in the result div
-    document.getElementById("result").innerHTML = "Minimum Cost: " + minCost;
-}
-
-// MinHeap implementation (to be included in script.js)
-class MinHeap {
-    constructor() {
-        this.heap = [];
-    }
-
-    insert(value) {
-        this.heap.push(value);
-        this.bubbleUp();
-    }
-
-    extractMin() {
-        if (this.isEmpty()) {
-            return null;
-        }
-
-        const minValue = this.heap[0];
-        const lastValue = this.heap.pop();
-
-        if (!this.isEmpty()) {
-            this.heap[0] = lastValue;
-            this.bubbleDown();
-        }
-
-        return minValue;
-    }
-
-    size() {
-        return this.heap.length;
-    }
-
-    isEmpty() {
-        return this.size() === 0;
-    }
-
-    bubbleUp() {
-        let currentIndex = this.size() - 1;
-
-        while (currentIndex > 0) {
-            const parentIndex = Math.floor((currentIndex - 1) / 2);
-
-            if (this.heap[currentIndex] < this.heap[parentIndex]) {
-                [this.heap[currentIndex], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[currentIndex]];
-                currentIndex = parentIndex;
-            } else {
-                break;
-            }
-        }
-    }
-
-    bubbleDown() {
-        let currentIndex = 0;
-
-        while (true) {
-            const leftChildIndex = 2 * currentIndex + 1;
-            const rightChildIndex = 2 * currentIndex + 2;
-            let smallestChildIndex = null;
-
-            if (leftChildIndex < this.size()) {
-                smallestChildIndex = leftChildIndex;
-            }
-
-            if (rightChildIndex < this.size() && this.heap[rightChildIndex] < this.heap[leftChildIndex]) {
-                smallestChildIndex = rightChildIndex;
-            }
-
-            if (smallestChildIndex === null || this.heap[currentIndex] <= this.heap[smallestChildIndex]) {
-                break;
-            }
-
-            [this.heap[currentIndex], this.heap[smallestChildIndex]] = [this.heap[smallestChildIndex], this.heap[currentIndex]];
-            currentIndex = smallestChildIndex;
-        }
-    }
+    // Displaying the result in the HTML div with id="result"
+    document.getElementById("result").innerHTML = "Minimum Cost: " + totalCost;
 }
